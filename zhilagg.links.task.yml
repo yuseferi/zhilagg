@@ -1,0 +1,24 @@
+zhilagg.admin_overview:
+  route_name: zhilagg.admin_overview
+  title: 'List'
+  base_route: zhilagg.admin_overview
+zhilagg.admin_settings:
+  route_name: zhilagg.admin_settings
+  title: 'Settings'
+  weight: 100
+  base_route: zhilagg.admin_overview
+
+entity.zhilagg_feed.canonical:
+  route_name: entity.zhilagg_feed.canonical
+  base_route: entity.zhilagg_feed.canonical
+  title: View
+entity.zhilagg_feed.edit_form:
+  route_name: entity.zhilagg_feed.edit_form
+  base_route: entity.zhilagg_feed.canonical
+  title: 'Configure'
+  weight: 10
+entity.zhilagg_feed.delete_form:
+  route_name: entity.zhilagg_feed.delete_form
+  base_route: entity.zhilagg_feed.canonical
+  title: Delete
+  weight: 20

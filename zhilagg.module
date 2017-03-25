@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * @file
+ * Used to aggregate syndicated content (RSS, RDF, and Atom).
+ */
+
+use Drupal\zhilagg\Entity\Feed;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Denotes that a feed's items should never expire.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function zhilagg_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.zhilagg':
+      $path_validator = \Drupal::pathValidator();
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Zhilagg module is an on-site syndicator and news reader that gathers and displays fresh content from RSS-, RDF-, and Atom-based feeds made available across the web. Thousands of sites (particularly news sites and blogs) publish their latest headlines in feeds, using a number of standardized XML-based formats. For more information, see the <a href=":zhilagg-module">online documentation for the Zhilagg module</a>.', array(':zhilagg-module' => 'https://www.drupal.org/documentation/modules/zhilagg')) . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      // Check if the zhilagg sources View is enabled.
+      if ($url = $path_validator->getUrlIfValid('zhilagg/sources')) {
+        $output .= '<dt>' . t('Viewing feeds') . '</dt>';
+        $output .= '<dd>' . t('Users view feed content in the <a href=":zhilagg">main zhilagg display</a>, or by <a href=":zhilagg-sources">their source</a> (usually via an RSS feed reader). The most recent content in a feed can be displayed as a block through the <a href=":admin-block">Blocks administration page</a>.', array(':zhilagg' => \Drupal::url('zhilagg.page_last'), ':zhilagg-sources' => $url->toString(), ':admin-block' => (\Drupal::moduleHandler()->moduleExists('block')) ? \Drupal::url('block.admin_display') : '#')) . '</dd>';
+      }
+      $output .= '<dt>' . t('Adding, editing, and deleting feeds') . '</dt>';
+      $output .= '<dd>' . t('Administrators can add, edit, and delete feeds, and choose how often to check each feed for newly updated items on the <a href=":feededit">Zhilagg administration page</a>.', array(':feededit' => \Drupal::url('zhilagg.admin_overview'))) . '</dd>';
+      $output .= '<dt>' . t('Configuring the display of feed items') . '</dt>';
+      $output .= '<dd>' . t('Administrators can choose how many items are displayed in the listing pages, which HTML tags are allowed in the content of feed items, and whether they should be trimmed to a maximum number of characters on the <a href=":settings">Zhilagg settings page</a>.', array(':settings' => \Drupal::url('zhilagg.admin_settings'))) . '</dd>';
+      $output .= '<dt>' . t('Discarding old feed items') . '</dt>';
+      $output .= '<dd>' . t('Administrators can choose whether to discard feed items that are older than a specified period of time on the <a href=":settings">Zhilagg settings page</a>. This requires a correctly configured cron maintenance task (see below).', array(':settings' => \Drupal::url('zhilagg.admin_settings'))) . '<dd>';
+
+      $output .= '<dt>' . t('<abbr title="Outline Processor Markup Language">OPML</abbr> integration') . '</dt>';
+      // Check if the zhilagg opml View is enabled.
+      if ($url = $path_validator->getUrlIfValid('zhilagg/opml')) {
+        $output .= '<dd>' . t('A <a href=":zhilagg-opml">machine-readable OPML file</a> of all feeds is available. OPML is an XML-based file format used to share outline-structured information such as a list of RSS feeds. Feeds can also be <a href=":import-opml">imported via an OPML file</a>.', array(':zhilagg-opml' => $url->toString(), ':import-opml' => \Drupal::url('zhilagg.opml_add'))) . '</dd>';
+      }
+      $output .= '<dt>' . t('Configuring cron') . '</dt>';
+      $output .= '<dd>' . t('A working <a href=":cron">cron maintenance task</a> is required to update feeds automatically.', array(':cron' => \Drupal::url('system.cron_settings'))) . '</dd>';
+      $output .= '</dl>';
+      return $output;
+
+    case 'zhilagg.admin_overview':
+      // Don't use placeholders for possibility to change URLs for translators.
+      $output = '<p>' . t('Many sites publish their headlines and posts in feeds, using a number of standardized XML-based formats. The zhilagg supports <a href="http://en.wikipedia.org/wiki/Rss">RSS</a>, <a href="http://en.wikipedia.org/wiki/Resource_Description_Framework">RDF</a>, and <a href="http://en.wikipedia.org/wiki/Atom_%28standard%29">Atom</a>.') . '</p>';
+      $output .= '<p>' . t('Current feeds are listed below, and <a href=":addfeed">new feeds may be added</a>. For each feed, the <em>latest items</em> block may be enabled at the <a href=":block">blocks administration page</a>.', array(':addfeed' => \Drupal::url('zhilagg.feed_add'), ':block' => (\Drupal::moduleHandler()->moduleExists('block')) ? \Drupal::url('block.admin_display') : '#')) . '</p>';
+      return $output;
+
+    case 'zhilagg.feed_add':
+      return '<p>' . t('Add a feed in RSS, RDF or Atom format. A feed may only have one entry.') . '</p>';
+
+    case 'zhilagg.opml_add':
+      return '<p>' . t('<abbr title="Outline Processor Markup Language">OPML</abbr> is an XML format for exchanging feeds between zhilaggs. A single OPML document may contain many feeds. Zhilagg uses this file to import all feeds at once. Upload a file from your computer or enter a URL where the OPML file can be downloaded.') . '</p>';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function zhilagg_theme() {
+  return array(
+    'zhilagg_feed' => array(
+      'render element' => 'elements',
+      'file' => 'zhilagg.theme.inc',
+    ),
+    'zhilagg_item' => array(
+      'render element' => 'elements',
+      'file' => 'zhilagg.theme.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function zhilagg_entity_extra_field_info() {
+  $extra = array();
+
+  $extra['zhilagg_feed']['zhilagg_feed'] = array(
+    'display' => array(
+      'items' => array(
+        'label' => t('Items'),
+        'description' => t('Items associated with this feed'),
+        'weight' => 0,
+      ),
+      // @todo Move to a formatter at https://www.drupal.org/node/2339917.
+      'image' => array(
+        'label' => t('Image'),
+        'description' => t('The feed image'),
+        'weight' => 2,
+      ),
+      // @todo Move to a formatter at https://www.drupal.org/node/2149845.
+      'description' => array(
+        'label' => t('Description'),
+        'description' => t('The description of this feed'),
+        'weight' => 3,
+      ),
+      'more_link' => array(
+        'label' => t('More link'),
+        'description' => t('A more link to the feed detail page'),
+        'weight' => 5,
+      ),
+      'feed_icon' => array(
+        'label' => t('Feed icon'),
+        'description' => t('An icon that links to the feed URL'),
+        'weight' => 6,
+      ),
+    ),
+  );
+
+  $extra['zhilagg_item']['zhilagg_item'] = array(
+    'display' => array(
+      // @todo Move to a formatter at https://www.drupal.org/node/2149845.
+      'description' => array(
+        'label' => t('Description'),
+        'description' => t('The description of this feed item'),
+        'weight' => 2,
+      ),
+    ),
+  );
+
+  return $extra;
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Queues news feeds for updates once their refresh interval has elapsed.
+ */
+function zhilagg_cron() {
+  $queue = \Drupal::queue('zhilagg_feeds');
+
+  $ids = \Drupal::entityManager()->getStorage('zhilagg_feed')->getFeedIdsToRefresh();
+  foreach (Feed::loadMultiple($ids) as $feed) {
+    if ($queue->createItem($feed)) {
+      // Add timestamp to avoid queueing item more than once.
+      $feed->setQueuedTime(REQUEST_TIME);
+      $feed->save();
+    }
+  }
+
+  // Delete queued timestamp after 6 hours assuming the update has failed.
+  $ids = \Drupal::entityQuery('zhilagg_feed')
+    ->condition('queued', REQUEST_TIME - (3600 * 6), '<')
+    ->execute();
+
+  if ($ids) {
+    $feeds = Feed::loadMultiple($ids);
+    foreach ($feeds as $feed) {
+      $feed->setQueuedTime(0);
+      $feed->save();
+    }
+  }
+}
+
+/**
+ * Gets the list of allowed tags.
+ *
+ * @return array
+ *   The list of allowed tags.
+ *
+ * @internal
+ */
+function _zhilagg_allowed_tags() {
+  return preg_split('/\s+|<|>/', \Drupal::config('zhilagg.settings')->get('items.allowed_html'), -1, PREG_SPLIT_NO_EMPTY);
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for block templates.
+ */
+function zhilagg_preprocess_block(&$variables) {
+  if ($variables['configuration']['provider'] == 'zhilagg') {
+    $variables['attributes']['role'] = 'complementary';
+  }
+}

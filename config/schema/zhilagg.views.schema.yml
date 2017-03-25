@@ -1,0 +1,24 @@
+# Schema for the views plugins of the Zhilagg module.
+
+views.argument.zhilagg_fid:
+  type: views.argument.numeric
+  label: 'Zhilagg feed ID'
+
+views.argument.zhilagg_iid:
+  type: views.argument.numeric
+  label: 'Zhilagg item ID'
+
+views.field.zhilagg_title_link:
+  type: views_field
+  label: 'Title link'
+  mapping:
+    display_as_link:
+      type: boolean
+
+views.row.zhilagg_rss:
+  type: views_row
+  label: 'Zhilagg item row'
+  mapping:
+    view_mode:
+      type: string
+      label: 'Display type'

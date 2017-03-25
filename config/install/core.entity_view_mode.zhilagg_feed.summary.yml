@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - zhilagg
+id: zhilagg_feed.summary
+label: Summary
+targetEntityType: zhilagg_feed
+cache: true

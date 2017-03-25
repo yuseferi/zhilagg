@@ -1,0 +1,58 @@
+zhilagg.admin_overview:
+  path: '/admin/config/services/zhilagg'
+  defaults:
+    _controller: '\Drupal\zhilagg\Controller\ZhilaggController::adminOverview'
+    _title: 'Zhilagg'
+  requirements:
+    _permission: 'administer news feeds'
+
+zhilagg.admin_settings:
+  path: '/admin/config/services/zhilagg/settings'
+  defaults:
+    _form: '\Drupal\zhilagg\Form\SettingsForm'
+    _title: 'Zhilagg settings'
+  requirements:
+    _permission: 'administer news feeds'
+
+zhilagg.feed_items_delete:
+  path: '/admin/config/services/zhilagg/delete/{zhilagg_feed}'
+  defaults:
+    _entity_form: 'zhilagg_feed.delete_items'
+    _title: 'Delete items'
+  requirements:
+    _permission: 'administer news feeds'
+
+zhilagg.feed_refresh:
+  path: '/admin/config/services/zhilagg/update/{zhilagg_feed}'
+  defaults:
+    _controller: '\Drupal\zhilagg\Controller\ZhilaggController::feedRefresh'
+    _title: 'Update items'
+  requirements:
+    _permission: 'administer news feeds'
+    _csrf_token: 'TRUE'
+
+zhilagg.opml_add:
+  path: '/admin/config/services/zhilagg/add/opml'
+  defaults:
+    _form: '\Drupal\zhilagg\Form\OpmlFeedAdd'
+    _title: 'Import OPML'
+  requirements:
+    _permission: 'administer news feeds'
+
+zhilagg.feed_add:
+  path: '/zhilagg/sources/add'
+  defaults:
+    _controller: '\Drupal\zhilagg\Controller\ZhilaggController::feedAdd'
+    _title: 'Add feed'
+  requirements:
+    _permission: 'administer news feeds'
+  options:
+    _admin_route: TRUE
+
+zhilagg.page_last:
+  path: '/zhilagg'
+  defaults:
+    _controller: '\Drupal\zhilagg\Controller\ZhilaggController::pageLast'
+    _title: 'Zhilagg'
+  requirements:
+    _permission: 'access news feeds'

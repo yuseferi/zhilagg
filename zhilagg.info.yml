@@ -1,0 +1,16 @@
+name: Zhilagg
+type: module
+description: 'Custom Aggregates syndicated content (RSS, RDF, and Atom feeds) from external sources with Scrap Ability .'
+package: Feeding
+# version: VERSION
+# core: 8.x
+configure: zhilagg.admin_settings
+dependencies:
+  - file
+  - options
+
+# Information added by Drupal.org packaging script on 2017-03-15
+version: '8.2.7'
+core: '8.x'
+project: 'drupal'
+datestamp: 1489609681

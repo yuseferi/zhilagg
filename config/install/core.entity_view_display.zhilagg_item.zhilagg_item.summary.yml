@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.zhilagg_item.summary
+  module:
+    - zhilagg
+id: zhilagg_item.zhilagg_item.summary
+targetEntityType: zhilagg_item
+bundle: zhilagg_item
+mode: summary
+content:
+  timestamp:
+    weight: 0
+hidden:
+  author: true
+  description: true
+  feed: true
+  link: true

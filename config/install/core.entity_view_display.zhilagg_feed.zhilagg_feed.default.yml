@@ -1,0 +1,32 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - zhilagg
+id: zhilagg_feed.zhilagg_feed.default
+targetEntityType: zhilagg_feed
+bundle: zhilagg_feed
+mode: default
+content:
+  checked:
+    type: timestamp_ago
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    label: inline
+  description:
+    weight: 3
+  feed_icon:
+    weight: 5
+  image:
+    weight: 2
+  items:
+    weight: 0
+  link:
+    type: uri_link
+    weight: 4
+    settings: {  }
+    third_party_settings: {  }
+    label: inline
+hidden:
+  more_link: true

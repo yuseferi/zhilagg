@@ -1,0 +1,16 @@
+services:
+  plugin.manager.zhilagg.fetcher:
+    class: Drupal\zhilagg\Plugin\ZhilaggPluginManager
+    arguments: [fetcher, '@container.namespaces', '@cache.discovery', '@module_handler']
+  plugin.manager.zhilagg.parser:
+    class: Drupal\zhilagg\Plugin\ZhilaggPluginManager
+    arguments: [parser, '@container.namespaces', '@cache.discovery', '@module_handler']
+  plugin.manager.zhilagg.processor:
+    class: Drupal\zhilagg\Plugin\ZhilaggPluginManager
+    arguments: [processor, '@container.namespaces', '@cache.discovery', '@module_handler']
+  zhilagg.items.importer:
+    class: Drupal\zhilagg\ItemsImporter
+    arguments: ['@config.factory', '@plugin.manager.zhilagg.fetcher', '@plugin.manager.zhilagg.parser', '@plugin.manager.zhilagg.processor', '@logger.channel.zhilagg']
+  logger.channel.zhilagg:
+    parent: logger.channel_base
+    arguments: ['zhilagg']
